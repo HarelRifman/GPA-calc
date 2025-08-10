@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Grade & GPA Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>📊 Grade & GPA Calculator</header>
+
+<!-- Auth Controls -->
+<div class="auth-bar">
+    <button id="signInBtn">Sign In with Google</button>
+    <button id="signUpBtn">Sign Up with Google</button>
+    <button id="signInRedirectBtn" title="Use this if popup doesn't work" style="display:none; background-color: #ff6b6b; color: white;">Google Sign In (Redirect)</button>
+    <button id="signOutBtn" style="display:none;">Sign Out</button>
+    <span id="userInfo" class="user-info"></span>
+    <span id="status" class="status"></span>
+</div>
+
+<!-- Help text for popup issues -->
+<div id="popupHelp" style="display:none; margin: 10px 0; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; font-size: 14px;">
+    <strong>Having trouble with the popup?</strong><br>
+    • Try the "Google Sign In (Redirect)" button above<br>
+    • Disable popup blockers for this site<br>
+    • Try a different browser or incognito mode
+</div>
+
+<!-- Email/Password Auth Panel -->
+
+
+<main>
+    <div class="form-grid">
+        <input type="text" id="course" placeholder="Course Name">
+        <select id="year">
+            <option value="">Year</option>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+        <select id="semester">
+            <option value="">Semester</option>
+            <option value="A">Semester A</option>
+            <option value="B">Semester B</option>
+            <option value="Summer">Summer</option>
+        </select>
+        <input type="number" id="grade" placeholder="Grade" min="0" max="100">
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;">
+            <input type="checkbox" id="passFlag"> Pass (exclude)
+        </label>
+        <input type="number" id="credits" placeholder="Credits" min="0">
+        <button id="addCourseBtn" onclick="addCourse()" disabled>Add Course</button>
+    </div>
+
+    <table id="courseTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>Course</th>
+                <th>Semester</th>
+                <th>Grade</th>
+                <th>Credits</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div id="semesterBlocks" class="semester-blocks"></div>
+
+    <div class="results">
+        <p id="gpa">GPA: - | Total Credits: -</p>
+        <div id="semesterMeans" style="display:none;"></div>
+    </div>
+</main>
+
+<script type="module" src="app.js"></script>
+<script>
+// Fallback check if modules don't load
+setTimeout(() => {
+    if (typeof window.addCourse === 'undefined') {
+        console.error('❌ Modules failed to load. Check browser support for ES modules');
+        document.getElementById('status').textContent = 'Script loading failed - check console';
+    }
+}, 2000);
+</script>
+</body>
+</html>
