@@ -27,6 +27,7 @@ let statusEl;
 let signInBtn, signUpBtn, signInRedirectBtn, signOutBtn, userInfo, addCourseBtn, popupHelp;
 let compareSection, refreshCompareBtn, compareContent, compareLoading, compareToggleBtn;
 let peerModal, peerModalClose, peerModalBody;
+let optOutCheckbox, optOutContainer;
 
 function initializeDOM() {
     statusEl = document.getElementById('status');
@@ -45,6 +46,8 @@ function initializeDOM() {
     peerModal = document.getElementById('peerModal');
     peerModalClose = document.getElementById('peerModalClose');
     peerModalBody = document.getElementById('peerModalBody');
+    optOutCheckbox = document.getElementById('optOutCompare');
+    optOutContainer = document.getElementById('optOutContainer');
     
     // Debug logging
     console.log('DOM Elements initialized:');
@@ -125,7 +128,8 @@ async function persistCourses() {
             courses,
             displayName: currentUser.displayName,
             email: currentUser.email,
-            lastUpdated: new Date().toISOString()
+            lastUpdated: new Date().toISOString(),
+            compareOptOut: optOutCheckbox ? !!optOutCheckbox.checked : false
         }, { merge: true });
     } catch (e) {
         console.error("Error saving courses", e);
@@ -138,6 +142,10 @@ async function loadCourses() {
         const snap = await getDoc(doc(db, "users", currentUser.uid));
         if (snap.exists()) {
             courses = snap.data().courses || [];
+            // Load opt-out preference
+            if (optOutCheckbox && typeof snap.data().compareOptOut === 'boolean') {
+                optOutCheckbox.checked = snap.data().compareOptOut;
+            }
             updateTable();
             updateResults();
         } else {
@@ -322,11 +330,12 @@ async function fetchOtherUsersData() {
         const usersQuery = query(collection(db, "users"), limit(100));
         const querySnapshot = await getDocs(usersQuery);
         otherUsersData = [];
-        querySnapshot.forEach((d) => {
+    querySnapshot.forEach((d) => {
             const userData = d.data();
             if (!userData) return;
             if (userData.courses && userData.courses.length) {
                 if (currentUser && d.id === currentUser.uid) return; // skip self
+        if (userData.compareOptOut) return; // respect opt-out
                 const stats = calculateGPA(userData.courses);
                 otherUsersData.push({
                     uid: d.id,
@@ -635,7 +644,8 @@ function attachEventListeners() {
                         courses: [],
                         displayName: result.user.displayName,
                         email: result.user.email,
-                        lastUpdated: new Date().toISOString()
+                        lastUpdated: new Date().toISOString(),
+                        compareOptOut: false
                     }, { merge: true });
                     setStatus('New account created successfully');
                 }
@@ -743,6 +753,25 @@ function attachEventListeners() {
     if (peerModalClose){
         peerModalClose.addEventListener('click', closePeerModal);
     }
+
+    // Opt-out preference change
+    if (optOutCheckbox){
+        optOutCheckbox.addEventListener('change', async () => {
+            if (!currentUser || !db) return;
+            try {
+                await setDoc(doc(db, 'users', currentUser.uid), {
+                    compareOptOut: !!optOutCheckbox.checked,
+                    lastUpdated: new Date().toISOString()
+                }, { merge: true });
+                // If user opts out while visible remove them by refetching
+                if (compareVisible) {
+                    fetchOtherUsersData();
+                }
+            } catch(e){
+                console.error('Failed to save opt-out preference', e);
+            }
+        });
+    }
 }
 
 function attachAuthListeners() {
@@ -763,6 +792,7 @@ function attachAuthListeners() {
                 signOutBtn.disabled = false;
             }
             if (compareToggleBtn) compareToggleBtn.style.display = 'inline-block';
+            if (optOutContainer) optOutContainer.style.display = 'flex';
             if (addCourseBtn) addCourseBtn.disabled = false;
             setStatus('Authenticated. Loading courses...');
             loadCourses();
@@ -778,6 +808,7 @@ function attachAuthListeners() {
                 signOutBtn.disabled = false;
             }
             if (compareToggleBtn) compareToggleBtn.style.display = 'none';
+            if (optOutContainer) optOutContainer.style.display = 'none';
             if (addCourseBtn) addCourseBtn.disabled = true;
             courses = [];
             updateTable();
