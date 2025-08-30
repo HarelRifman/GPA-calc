@@ -16,6 +16,7 @@
     <button id="signUpBtn">Sign Up with Google</button>
     <button id="signInRedirectBtn" title="Use this if popup doesn't work" style="display:none; background-color: #ff6b6b; color: white;">Google Sign In (Redirect)</button>
     <button id="signOutBtn" style="display:none;">Sign Out</button>
+    <button id="compareToggleBtn" class="compare-toggle" style="display:inline-block;">🏆 Compare Grades</button>
     <span id="userInfo" class="user-info"></span>
     <span id="status" class="status"></span>
 </div>
@@ -74,7 +75,32 @@
         <p id="gpa">GPA: - | Total Credits: -</p>
         <div id="semesterMeans" style="display:none;"></div>
     </div>
+
+    <!-- Compare Section -->
+    <div id="compareSection" class="compare-section" style="display:none;">
+        <div class="section-header">
+            <h2>🏆 Compare with Others</h2>
+            <button id="refreshCompareBtn" class="refresh-btn">🔄 Refresh</button>
+        </div>
+        <div id="compareContent">
+            <div id="compareStats" class="compare-stats"></div>
+            <div id="otherUsersGrid" class="other-users-grid"></div>
+        </div>
+        <div id="compareLoading" class="loading">Loading other users' data...</div>
+    </div>
 </main>
+    <!-- Peer detail modal -->
+    <div id="peerModal" class="peer-modal" style="display:none;">
+        <div class="peer-modal-content" role="dialog" aria-modal="true" aria-labelledby="peerModalTitle">
+            <div class="peer-modal-header">
+                    <h3 id="peerModalTitle">Peer Grades</h3>
+                    <button id="peerModalClose" class="peer-modal-close" aria-label="Close">×</button>
+            </div>
+            <div id="peerModalBody" class="peer-modal-body">
+                    <!-- Filled dynamically -->
+            </div>
+        </div>
+    </div>
 
 <script type="module" src="app.js"></script>
 <script>

@@ -19,9 +19,17 @@ node server.js
 Open: http://localhost:8080
 
 ### Method 2: Python (alternative)
+In the folder of the project
+For linux users run in terminal:
 ```bash
 python3 -m http.server 8080
 ```
+For windows users run in powrshell:
+```bash
+python -m http.server 8080
+```
+
+
 Open: http://localhost:8080
 
 ## 🔧 Firebase Setup
