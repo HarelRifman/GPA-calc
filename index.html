@@ -2,102 +2,538 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grade & GPA Calculator</title>
+<title>AcademicHub - GPA Calculator & Schedule Manager</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="style.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
-<header>📊 Grade & GPA Calculator</header>
+<!-- Navigation Sidebar -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2><i class="fas fa-graduation-cap"></i> AcademicHub</h2>
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    
+    <div class="nav-menu">
+        <a href="#dashboard" class="nav-item active" data-page="dashboard">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="#schedule" class="nav-item" data-page="schedule">
+            <i class="fas fa-calendar-week"></i>
+            <span>Schedule</span>
+        </a>
+        <a href="#grades" class="nav-item" data-page="grades">
+            <i class="fas fa-chart-line"></i>
+            <span>Grades</span>
+        </a>
+        <a href="#compare" class="nav-item" data-page="compare">
+            <i class="fas fa-users"></i>
+            <span>Compare</span>
+        </a>
+        <a href="#settings" class="nav-item" data-page="settings">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </div>
+    
+    <div class="sidebar-footer">
+        <div class="user-info" id="userInfo">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <span class="user-name" id="userName">Guest User</span>
+                <span class="user-status" id="userStatus">Not signed in</span>
+            </div>
+        </div>
+        <div class="auth-buttons">
+            <button id="signInBtn" class="auth-btn sign-in">
+                <i class="fab fa-google"></i> Sign In
+            </button>
+            <button id="signUpBtn" class="auth-btn sign-up">
+                <i class="fab fa-google"></i> Sign Up
+            </button>
+            <button id="signInRedirectBtn" class="auth-btn sign-in-redirect" style="display:none;">
+                <i class="fas fa-external-link-alt"></i> Redirect Sign In
+            </button>
+            <button id="signOutBtn" class="auth-btn sign-out" style="display:none;">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+        </div>
+    </div>
+</nav>
 
-<!-- Auth Controls -->
-<div class="auth-bar">
-    <button id="signInBtn">Sign In with Google</button>
-    <button id="signUpBtn">Sign Up with Google</button>
-    <button id="signInRedirectBtn" title="Use this if popup doesn't work" style="display:none; background-color: #ff6b6b; color: white;">Google Sign In (Redirect)</button>
-    <button id="signOutBtn" style="display:none;">Sign Out</button>
-    <button id="compareToggleBtn" class="compare-toggle" style="display:inline-block;">🏆 Compare Grades</button>
-    <span id="userInfo" class="user-info"></span>
-    <span id="status" class="status"></span>
-    <label id="optOutContainer" style="display:none; font-size:11px; color:#ecf0f1; display:flex; align-items:center; gap:4px; margin-left:8px;">
-        <input type="checkbox" id="optOutCompare" style="margin:0; width:auto;"> <span title="If checked, other users will not see you in the comparison list">Exclude me</span>
+<!-- Main Content Area -->
+<div class="main-content" id="mainContent">
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-left">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="header-right">
+            <div class="status-indicator" id="statusIndicator">
+                <span id="status" class="status-text">Ready</span>
+            </div>
+            <label id="optOutContainer" class="opt-out-container" style="display:none;">
+                <input type="checkbox" id="optOutCompare">
+                <span>Exclude from comparison</span>
     </label>
 </div>
+    </header>
 
 <!-- Help text for popup issues -->
-<div id="popupHelp" style="display:none; margin: 10px 0; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; font-size: 14px;">
-    <strong>Having trouble with the popup?</strong><br>
-    • Try the "Google Sign In (Redirect)" button above<br>
-    • Disable popup blockers for this site<br>
-    • Try a different browser or incognito mode
+    <div id="popupHelp" class="popup-help" style="display:none;">
+        <div class="help-content">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>Having trouble with the popup?</strong>
+                <p>Try the "Redirect Sign In" button or disable popup blockers for this site.</p>
+            </div>
+        </div>
 </div>
 
-<!-- Email/Password Auth Panel -->
+    <!-- Page Content -->
+    <main class="page-content">
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page active">
+            <div class="dashboard-grid">
+                <!-- GPA Overview Card -->
+                <div class="dashboard-card gpa-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line"></i> GPA Overview</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="gpa-display">
+                            <div class="gpa-main" id="gpaMain">-</div>
+                            <div class="gpa-details" id="gpaDetails">No courses added yet</div>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Quick Add Course Card -->
+                <div class="dashboard-card add-course-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-plus-circle"></i> Add Course</h3>
+                    </div>
+                    <div class="card-content">
+                        <form class="course-form" id="courseForm">
+                            <div class="form-row">
+                                <input type="text" id="course" placeholder="Course Name" required>
+                                <select id="year" required>
+                                    <option value="">Select Year</option>
+                                    <option value="1">Year 1</option>
+                                    <option value="2">Year 2</option>
+                                    <option value="3">Year 3</option>
+                                    <option value="4">Year 4</option>
+                                </select>
+                                <select id="semester" required>
+                                    <option value="">Select Semester</option>
+                                    <option value="A">Semester A</option>
+                                    <option value="B">Semester B</option>
+                                    <option value="Summer">Summer</option>
+                                </select>
+                                <input type="number" id="grade" placeholder="Grade" min="0" max="100">
+                            </div>
+                            <div class="form-row">
+                                <input type="number" id="credits" placeholder="Credits" min="0" step="0.5">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="passFlag">
+                                    <span>Pass/Fail</span>
+                                </label>
+                            </div>
+                            <button type="submit" id="addCourseBtn" class="btn-primary" disabled>
+                                <i class="fas fa-plus"></i> Add Course
+                            </button>
+                        </form>
+                    </div>
+                </div>
 
-<main>
-    <div class="form-grid">
-        <input type="text" id="course" placeholder="Course Name">
-        <select id="year">
-            <option value="">Year</option>
-            <option value="0">0</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-        </select>
-        <select id="semester">
-            <option value="">Semester</option>
-            <option value="A">Semester A</option>
-            <option value="B">Semester B</option>
-            <option value="Summer">Summer</option>
-        </select>
-        <input type="number" id="grade" placeholder="Grade" min="0" max="100">
-        <label style="display:flex;align-items:center;gap:4px;font-size:12px;">
-            <input type="checkbox" id="passFlag"> Pass (exclude)
+                <!-- Semester Overview Cards -->
+                <div class="dashboard-card semester-overview">
+                    <div class="card-header">
+                        <h3><i class="fas fa-calendar-alt"></i> Semester Overview</h3>
+                    </div>
+                    <div class="card-content">
+                        <div id="semesterBlocks" class="semester-blocks"></div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Card -->
+                <div class="dashboard-card activity-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                    </div>
+                    <div class="card-content">
+                        <div id="recentActivity" class="activity-list">
+                            <div class="activity-item">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Welcome to AcademicHub! Add your first course to get started.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Page -->
+        <div id="schedulePage" class="page">
+            <div class="schedule-container">
+                <div class="schedule-header">
+                    <h2><i class="fas fa-calendar-week"></i> Weekly Schedule</h2>
+                    <div class="schedule-controls">
+                        <select id="scheduleYear" class="semester-selector">
+                            <option value="">Select Year</option>
+                            <option value="1">Year 1</option>
+                            <option value="2">Year 2</option>
+                            <option value="3">Year 3</option>
+                            <option value="4">Year 4</option>
+                        </select>
+                        <select id="scheduleSemester" class="semester-selector">
+                            <option value="">Select Semester</option>
+                            <option value="A">Semester A</option>
+                            <option value="B">Semester B</option>
+                            <option value="Summer">Summer</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Schedule Creation Interface -->
+                <div id="scheduleCreationInterface" class="schedule-creation-interface" style="display: none;">
+                    <div class="creation-header">
+                        <h3>Create Schedule for <span id="selectedSemesterDisplay"></span></h3>
+                        <div class="creation-actions">
+                            <button id="editScheduleBtn" class="edit-schedule-btn">
+                                <i class="fas fa-edit"></i> Edit Mode
+                            </button>
+                        </div>
+                    </div>
+                    
+        <div class="schedule-table-wrapper">
+          <div class="schedule-week-table">
+            <div class="schedule-table-header">
+              <div class="time-header">Time</div>
+              <div class="day-header">Sunday</div>
+              <div class="day-header">Monday</div>
+              <div class="day-header">Tuesday</div>
+              <div class="day-header">Wednesday</div>
+              <div class="day-header">Thursday</div>
+            </div>
+            <div class="schedule-table-body" id="scheduleTableBody">
+              <!-- Time slots will be generated by JavaScript -->
+            </div>
+          </div>
+        </div>
+                </div>
+                
+                <!-- Schedule Display -->
+                <div class="schedule-grid" id="scheduleGrid">
+                    <div class="schedule-placeholder">
+                        <i class="fas fa-calendar-plus"></i>
+                        <h3>No Schedule Created</h3>
+                        <p>Select a semester and create your weekly schedule to get started.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grades Page -->
+        <div id="gradesPage" class="page">
+            <div class="grades-container">
+                <div class="grades-header">
+                    <h2><i class="fas fa-chart-line"></i> Grade Analysis</h2>
+                    <div class="grades-controls">
+                        <button id="manageGradesBtn" class="btn-primary">
+                            <i class="fas fa-edit"></i> Manage Grades
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grades-content">
+                    <!-- Grade Statistics Cards -->
+                    <div class="grades-stats-section">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h4>Overall GPA</h4>
+                                    <div class="stat-value" id="overallGPA">-</div>
+                                    <div class="stat-detail" id="overallGPADetail">No grades yet</div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h4>GPA (Excl. Judaism)</h4>
+                                    <div class="stat-value" id="gpaNoJudaism">-</div>
+                                    <div class="stat-detail" id="gpaNoJudaismDetail">No grades yet</div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h4>Total Credits</h4>
+                                    <div class="stat-value" id="totalCredits">0</div>
+                                    <div class="stat-detail" id="totalCreditsDetail">credits completed</div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h4>Courses Completed</h4>
+                                    <div class="stat-value" id="coursesCompleted">0</div>
+                                    <div class="stat-detail" id="coursesCompletedDetail">courses</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grades-management-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-edit"></i> Quick Grade Management</h3>
+                            <div class="quick-actions">
+                                <button id="toggleInlineEdit" class="btn-secondary">
+                                    <i class="fas fa-edit"></i> Enable Inline Editing
+                                </button>
+                                <button id="addQuickGrade" class="btn-primary">
+                                    <i class="fas fa-plus"></i> Add Grade
+                                </button>
+                            </div>
+                        </div>
+                        <div class="inline-edit-info" id="inlineEditInfo" style="display: none;">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Inline editing enabled - click on grades to edit them directly</span>
+                        </div>
+                    </div>
+                    
+                    <div class="semester-blocks" id="gradesSemesterBlocks"></div>
+                    
+                    <!-- Compare Section -->
+                    <div id="compareSection" class="compare-section" style="display:none;">
+                        <div class="section-header">
+                            <h3><i class="fas fa-trophy"></i> Compare with Others</h3>
+                            <button id="refreshCompareBtn" class="btn-secondary">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                        <div id="compareContent">
+                            <div id="compareStats" class="compare-stats"></div>
+                            <div id="otherUsersGrid" class="other-users-grid"></div>
+                        </div>
+                        <div id="compareLoading" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading comparison data...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compare Page -->
+        <div id="comparePage" class="page">
+            <div class="compare-container">
+                <div class="compare-header">
+                    <h2><i class="fas fa-users"></i> Peer Comparison</h2>
+                    <div class="compare-controls">
+                        <button id="refreshCompareBtn2" class="btn-primary">
+                            <i class="fas fa-sync-alt"></i> Refresh Data
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="compare-content">
+                    <div id="compareStats2" class="compare-stats"></div>
+                    <div id="otherUsersGrid2" class="other-users-grid"></div>
+                </div>
+                <div id="compareLoading2" class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading comparison data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settingsPage" class="page">
+            <div class="settings-container">
+                <div class="settings-header">
+                    <h2><i class="fas fa-cog"></i> Settings</h2>
+                </div>
+                <div class="settings-content">
+                    <div class="settings-section">
+                        <h3>Privacy Settings</h3>
+                        <div class="setting-item">
+                            <label class="setting-label">
+                                <input type="checkbox" id="optOutCompare2">
+                                <span class="setting-text">
+                                    <strong>Exclude from peer comparison</strong>
+                                    <small>If enabled, other users will not see your data in comparison lists</small>
+                                </span>
         </label>
-        <input type="number" id="credits" placeholder="Credits" min="0">
-        <button id="addCourseBtn" onclick="addCourse()" disabled>Add Course</button>
-    </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Account Information</h3>
+                        <div class="account-info">
+                            <div class="info-item">
+                                <span class="info-label">Display Name:</span>
+                                <span id="displayName" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Email:</span>
+                                <span id="emailAddress" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Last Updated:</span>
+                                <span id="lastUpdated" class="info-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Schedule Modal removed - now using inline creation interface -->
 
-    <table id="courseTable" style="display:none;">
+    <!-- Grade Management Modal -->
+    <div id="gradeModal" class="modal" style="display:none;">
+        <div class="modal-content grade-modal-content">
+            <div class="modal-header">
+                <h3 id="gradeModalTitle">Manage Grades</h3>
+                <button id="gradeModalClose" class="modal-close" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="grade-management-toolbar">
+                    <div class="toolbar-left">
+                        <select id="gradeSemesterFilter" class="semester-filter">
+                            <option value="">All Semesters</option>
+                        </select>
+                        <button id="addNewGradeBtn" class="btn-primary">
+                            <i class="fas fa-plus"></i> Add Grade
+                        </button>
+                    </div>
+                    <div class="toolbar-right">
+                        <button id="bulkEditBtn" class="btn-secondary">
+                            <i class="fas fa-edit"></i> Bulk Edit
+                        </button>
+                        <button id="exportGradesBtn" class="btn-secondary">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grades-table-container">
+                    <table id="gradesTable" class="grades-table">
         <thead>
             <tr>
+                                <th class="checkbox-col">
+                                    <input type="checkbox" id="selectAllGrades">
+                                </th>
                 <th>Course</th>
                 <th>Semester</th>
                 <th>Grade</th>
                 <th>Credits</th>
+                                <th>Type</th>
+                                <th>Actions</th>
             </tr>
         </thead>
-        <tbody></tbody>
+                        <tbody id="gradesTableBody">
+                            <!-- Grades will be populated here -->
+                        </tbody>
     </table>
-
-    <div id="semesterBlocks" class="semester-blocks"></div>
-
-    <div class="results">
-        <p id="gpa">GPA: - | Total Credits: -</p>
-        <div id="semesterMeans" style="display:none;"></div>
+                </div>
+                
+                <div class="grade-summary">
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Courses:</span>
+                            <span id="totalCoursesCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Credits:</span>
+                            <span id="totalCreditsCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">GPA:</span>
+                            <span id="currentGPA">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Compare Section -->
-    <div id="compareSection" class="compare-section" style="display:none;">
-        <div class="section-header">
-            <h2>🏆 Compare with Others</h2>
-            <button id="refreshCompareBtn" class="refresh-btn">🔄 Refresh</button>
+    <!-- Quick Grade Edit Modal -->
+    <div id="quickGradeModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="quickGradeModalTitle">Edit Grade</h3>
+                <button id="quickGradeModalClose" class="modal-close" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="quickGradeForm">
+                    <div class="form-group">
+                        <label for="editCourseName">Course Name</label>
+                        <input type="text" id="editCourseName" readonly>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editSemester">Semester</label>
+                            <input type="text" id="editSemester" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCredits">Credits</label>
+                            <input type="number" id="editCredits" min="0" step="0.5" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="editPassFlag">
+                            <span>Pass/Fail Course</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group" id="gradeInputGroup">
+                        <label for="editGrade">Grade</label>
+                        <input type="number" id="editGrade" min="0" max="100" step="0.1">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="quickGradeCancelBtn" class="btn-secondary">Cancel</button>
+                        <button type="submit" class="btn-primary">Save Changes</button>
+                    </div>
+                </form>
         </div>
-        <div id="compareContent">
-            <div id="compareStats" class="compare-stats"></div>
-            <div id="otherUsersGrid" class="other-users-grid"></div>
         </div>
-        <div id="compareLoading" class="loading">Loading other users' data...</div>
     </div>
-</main>
+
     <!-- Peer detail modal -->
     <div id="peerModal" class="peer-modal" style="display:none;">
         <div class="peer-modal-content" role="dialog" aria-modal="true" aria-labelledby="peerModalTitle">
             <div class="peer-modal-header">
                     <h3 id="peerModalTitle">Peer Grades</h3>
-                    <button id="peerModalClose" class="peer-modal-close" aria-label="Close">×</button>
+                <button id="peerModalClose" class="peer-modal-close" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div id="peerModalBody" class="peer-modal-body">
                     <!-- Filled dynamically -->
