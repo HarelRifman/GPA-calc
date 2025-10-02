@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: gpa-calculator
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: .
