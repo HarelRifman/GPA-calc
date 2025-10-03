@@ -1121,7 +1121,7 @@ select option {
 }
 
 .day-cell {
-  padding: 0.5rem;
+  padding: 0.75rem 0.5rem;
   border-right: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   min-height: 60px;
@@ -1131,6 +1131,8 @@ select option {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .day-cell:hover {
@@ -1297,9 +1299,9 @@ select option {
 .schedule-course-item {
   background: var(--primary-color);
   color: white;
-  padding: 0.75rem;
-  margin: 0.125rem;
-  border-radius: 12px;
+  padding: 0.5rem;
+  margin: 0;
+  border-radius: 8px;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1311,6 +1313,8 @@ select option {
   flex-direction: column;
   justify-content: space-between;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .schedule-course-item:hover {
@@ -2517,7 +2521,7 @@ select option {
   }
 
   .day-cell {
-    padding: 0.125rem;
+    padding: 0.5rem 0.25rem;
     min-height: 50px;
   }
 
@@ -2576,7 +2580,7 @@ select option {
   }
 
   .day-cell {
-    padding: 0.0625rem;
+    padding: 0.375rem 0.125rem;
     min-height: 40px;
   }
 
@@ -2723,6 +2727,9 @@ select option {
   min-height: 0;
   font-size: 0.8rem;
   padding: 2px 4px;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .schedule-course-item.multi-course .course-name {
