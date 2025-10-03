@@ -338,8 +338,8 @@ async function showScheduleCreationInterface() {
       "block";
     document.getElementById("scheduleGrid").style.display = "none";
 
-    // Generate time slots
-    generateTimeSlots();
+    // Generate time slots (show all in edit mode by default)
+    generateTimeSlots(true, []);
 
     // Load existing courses for this semester
     await loadCoursesForSemester(`${semester} ${year}`);
@@ -372,7 +372,7 @@ function toggleEditMode() {
     const year = document.getElementById("scheduleYear").value;
     const semester = document.getElementById("scheduleSemester").value;
     if (year && semester) {
-      generateTimeSlots();
+      generateTimeSlots(isEditMode, []);
       await loadCoursesForSemester(`${semester} ${year}`);
     }
   }, 50);
@@ -499,13 +499,13 @@ function convertTo24Hour(time12) {
   return `${hour.toString().padStart(2, "0")}:${min}`;
 }
 
-function generateTimeSlots() {
+function generateTimeSlots(showAllTimeSlots = true, courses = []) {
   const tableBody = document.getElementById("scheduleTableBody");
   if (!tableBody) return;
 
   tableBody.innerHTML = "";
 
-  const timeSlots = [
+  const allTimeSlots = [
     "8:00 AM",
     "9:00 AM",
     "10:00 AM",
@@ -521,6 +521,33 @@ function generateTimeSlots() {
     "8:00 PM",
     "9:00 PM",
   ];
+
+  let timeSlots = allTimeSlots;
+
+  // If not showing all time slots, filter to only show times with courses
+  if (!showAllTimeSlots && courses.length > 0) {
+    const usedTimes = new Set();
+    courses.forEach((course) => {
+      if (course.startTime) {
+        usedTimes.add(course.startTime);
+      }
+    });
+
+    // Find the earliest and latest times
+    const sortedTimes = allTimeSlots.filter((time) => usedTimes.has(time));
+    if (sortedTimes.length > 0) {
+      const earliestIndex = allTimeSlots.indexOf(sortedTimes[0]);
+      const latestIndex = allTimeSlots.indexOf(
+        sortedTimes[sortedTimes.length - 1]
+      );
+
+      // Start from the earliest class time, add one hour after latest for context
+      const startIndex = earliestIndex;
+      const endIndex = Math.min(allTimeSlots.length - 1, latestIndex + 1);
+
+      timeSlots = allTimeSlots.slice(startIndex, endIndex + 1);
+    }
+  }
 
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
 
@@ -612,6 +639,11 @@ async function loadCoursesForSemester(semester) {
       course: c.course,
     }))
   );
+
+  // Generate time slots based on edit mode
+  // In edit mode: show all time slots
+  // In view mode: show only time slots with courses (plus one hour before/after for context)
+  generateTimeSlots(isEditMode, semesterCourses);
 
   // Clear all day cells first
   const dayCells = document.querySelectorAll(".day-cell");
@@ -2957,25 +2989,25 @@ function displayComparisonData() {
       const difference = currentUser ? user.gpa - currentStats.gpa : 0;
 
       userCard.innerHTML = `
-              <div class="user-header">
-                  <div class="user-name">${user.name}</div>
-                  <div class="user-gpa ${gpaClass}">${user.gpa.toFixed(3)}</div>
-              </div>
-              <div class="user-details">
-                  <div><strong>Rank:</strong> #${index + 1}</div>
+            <div class="user-header">
+                <div class="user-name">${user.name}</div>
+                <div class="user-gpa ${gpaClass}">${user.gpa.toFixed(3)}</div>
+            </div>
+            <div class="user-details">
+                <div><strong>Rank:</strong> #${index + 1}</div>
                   <div><strong>Total Credits:</strong> ${
                     user.totalCredits
                   }</div>
-                  <div><strong>Courses:</strong> ${user.courseCount}</div>
-                  ${
-                    currentUser
-                      ? `<div><strong>Difference:</strong> ${
-                          difference > 0 ? "+" : ""
-                        }${difference.toFixed(3)}</div>`
-                      : ""
-                  }
-              </div>
-          `;
+                <div><strong>Courses:</strong> ${user.courseCount}</div>
+                ${
+                  currentUser
+                    ? `<div><strong>Difference:</strong> ${
+                        difference > 0 ? "+" : ""
+                      }${difference.toFixed(3)}</div>`
+                    : ""
+                }
+            </div>
+        `;
 
       // Click/keyboard to open peer modal
       function openPeer() {
